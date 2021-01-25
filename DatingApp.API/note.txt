@@ -2,6 +2,8 @@ For Setting up migration
     1.  dotnet tool install --global dotnet-ef --version 5.0.2
     2.  dotnet ef migration add InitialCreate -o Data/Migrations
     3.  dotnet ef database update
+    4.  dotnet ef migrations add UserPasswordAdded
+    
 
 
     dotnet new gitignore
