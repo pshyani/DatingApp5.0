@@ -3,7 +3,8 @@ For Setting up migration
     2.  dotnet ef migration add InitialCreate -o Data/Migrations
     3.  dotnet ef database update
     4.  dotnet ef migrations add UserPasswordAdded
-    
+    5. dotnet ef database update
+    6. dotnet ef database drop
 
 
     dotnet new gitignore
