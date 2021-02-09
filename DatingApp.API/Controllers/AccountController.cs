@@ -9,6 +9,7 @@ using System.Security.Cryptography;
 using System.Text;
 using DatingApp.API.DTO;
 using DatingApp.API.Interfaces;
+using AutoMapper;
 
 namespace DatingApp.API.Controllers
 {
@@ -16,9 +17,11 @@ namespace DatingApp.API.Controllers
     {
         private readonly DataContext _context;
         private readonly ITokenService _tokenService;
+        private readonly IMapper _mapper;
 
-        public AccountController(DataContext context, ITokenService tokenService)
+        public AccountController(DataContext context, ITokenService tokenService, IMapper mapper)
         {
+            _mapper = mapper;
             _context = context;
             _tokenService = tokenService;
         }
@@ -26,22 +29,24 @@ namespace DatingApp.API.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<UserDTO>> Register(RegisterDTO registerDTO)
         {
-            if(await UserExists(registerDTO.UserName))
+            if (await UserExists(registerDTO.UserName))
                 return BadRequest("Username is taken");
 
-            using var hmac = new HMACSHA512();
+            var user = _mapper.Map<AppUser>(registerDTO);
 
-            var user = new AppUser{
-                UserName = registerDTO.UserName.ToLower(),
-                PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDTO.Password)),
-                PasswordSalt = hmac.Key
-            }; 
+            using var hmac = new HMACSHA512();
+           
+            user.UserName = registerDTO.UserName.ToLower();
+            user.PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDTO.Password));
+            user.PasswordSalt = hmac.Key;           
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
-            return new UserDTO() {
+            return new UserDTO()
+            {
                 UserName = user.UserName,
-                Token = _tokenService.CreateToken(user)
+                Token = _tokenService.CreateToken(user),
+                KnownAs = user.KnownAs
             };
         }
 
@@ -52,20 +57,21 @@ namespace DatingApp.API.Controllers
                             .Include(P => P.Photos)
                             .SingleOrDefaultAsync(x => x.UserName == loginDTO.UserName);
 
-            if(user == null)
+            if (user == null)
                 return Unauthorized("Invalid username");
 
             using var hmac = new HMACSHA512(user.PasswordSalt);
 
             var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(loginDTO.Password));
 
-            for(int i = 0 ; i < computedHash.Length; i++)
+            for (int i = 0; i < computedHash.Length; i++)
             {
-                if(computedHash[i] != user.PasswordHash[i])
+                if (computedHash[i] != user.PasswordHash[i])
                     return Unauthorized("Invalid password");
             }
 
-            return new UserDTO() {
+            return new UserDTO()
+            {
                 UserName = user.UserName,
                 PhotoUrl = user.Photos.FirstOrDefault(x => x.IsMain)?.Url ?? "",
                 Token = _tokenService.CreateToken(user)
@@ -77,6 +83,6 @@ namespace DatingApp.API.Controllers
             return await _context.Users.AnyAsync(x => x.UserName == username.ToLower());
         }
 
-        
+
     }
 }
