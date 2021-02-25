@@ -23,10 +23,10 @@ namespace DatingApp.API.Data
             _context = context;
         }
 
-        public async Task<MemberDTO> GetMemberAsync(string userName)
+        public async Task<MemberDTO> GetMemberAsync(string username)
         {
             return await _context.Users
-                .Where(x => x.UserName == userName)
+                .Where(x => x.UserName == username)
                 .ProjectTo<MemberDTO>(_mapper.ConfigurationProvider)
                 .SingleOrDefaultAsync();
         }

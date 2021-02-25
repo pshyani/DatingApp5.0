@@ -33,12 +33,12 @@ namespace DatingApp.API.Controllers
         [HttpPost]
         public async Task<ActionResult<MessageDTO>> CreateMessage(CreateMessageDTO createMessageDTO)
         {
-            var userName = User.GetUserName();
+            var username = User.GetUserName();
 
-            if (userName == createMessageDTO.RecipientUserName.ToLower())
+            if (username == createMessageDTO.RecipientUserName.ToLower())
                 return BadRequest("You cannot send messages to yourself");
 
-            var sender = await _userRepository.GetUsersByUserNameAsync(userName);
+            var sender = await _userRepository.GetUsersByUserNameAsync(username);
             var recipient = await _userRepository.GetUsersByUserNameAsync(createMessageDTO.RecipientUserName);
 
             if (recipient == null)

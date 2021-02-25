@@ -30,7 +30,8 @@ namespace DatingApp.API.Controllers
             _userRepository = userRepository;
         }
 
-        [AllowAnonymous]
+
+       
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MemberDTO>>> GetUsers([FromQuery]UserParams userParams)
         {
@@ -50,13 +51,12 @@ namespace DatingApp.API.Controllers
             // var usersToReturn = _mapper.Map<IEnumerable<MemberDTO>>(users);
             // return Ok(usersToReturn);
         }
-
-        [Authorize]
-        [HttpGet("{userName}", Name = "GetUser")]
-        public async Task<ActionResult<MemberDTO>> GetUser(string userName)
+      
+        [HttpGet("{username}", Name = "GetUser")]
+        public async Task<ActionResult<MemberDTO>> GetUser(string username)
         {
-            return await _userRepository.GetMemberAsync(userName);
-            // var user = await _userRepository.GetUsersByUserNameAsync(userName);
+            return await _userRepository.GetMemberAsync(username);
+            // var user = await _userRepository.GetUsersByUserNameAsync(username);
             // var userToReturn = _mapper.Map<MemberDTO>(user);
             // return Ok(userToReturn);
         }

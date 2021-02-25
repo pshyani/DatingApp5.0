@@ -13,6 +13,9 @@
                 <li class="nav-item">
                     <a class="nav-link" routerLink="/messages" routerLinkActive='active'>Messages</a>
                 </li> 
+                <li *appHasRole='["Admin","Moderator"]' class="nav-item">
+                    <a class="nav-link" routerLink="/admin" routerLinkActive='active'>Admin</a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link" routerLink="/errors" routerLinkActive='active'>Errors</a>
                 </li> 
@@ -21,7 +24,7 @@
 
         <div class="dropdown" *ngIf="(accountService.currentUser$ | async) as user" dropdown>
             <img src="{{user.photoUrl || './assets/user.png'}}" alt="{{user.userName}}">
-            <a class="dropdown-toggle text-light ml-2" dropdownToggle>Welcome {{user.knownAs | titlecase}}</a>
+            <a class="dropdown-toggle text-light ml-2" dropdownToggle>Welcome {{user.knownAs || user.userName | titlecase}}</a>
             <div class="dropdown-menu" *dropdownMenu>
                 <a class="dropdown-item" routerLink="/member/edit">Edit Profile</a>
                 <div class="dropdown-divider"></div>
@@ -30,8 +33,8 @@
         </div>
         <form *ngIf="(accountService.currentUser$ | async) === null" #loginForm="ngForm" class="d-flex" (ngSubmit)= "login()"
         autocomplete="off">
-            <input name="userName"
-                    [(ngModel)]="model.userName"
+            <input name="username"
+                    [(ngModel)]="model.username"
                     class="form-control me-2" 
                     style="margin: 4px;"
                     type="text" 
