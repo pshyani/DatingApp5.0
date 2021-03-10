@@ -22,6 +22,12 @@ namespace DatingApp.API.Data
             _dataContext = dataContext;
 
         }
+
+        public void AddGroup(Group group)
+        {
+            _dataContext.Groups.Add(group);
+        }
+
         public void AddMessage(Message message)
         {
             _dataContext.Messages.Add(message);
@@ -32,12 +38,32 @@ namespace DatingApp.API.Data
             _dataContext.Messages.Remove(message);
         }
 
+        public async Task<Connection> GetConnection(string connectionId)
+        {
+            return await _dataContext.Connections.FindAsync(connectionId);
+        }
+
+        public async Task<Group> GetGroupForConnection(string connectionId)
+        {
+           return await _dataContext.Groups
+                    .Include(c => c.Connections)
+                    .Where(c => c.Connections.Any(x => x.ConnectionId == connectionId))
+                    .FirstOrDefaultAsync();
+        }
+
         public async Task<Message> GetMessage(int id)
         {
             return await _dataContext.Messages
                             .Include(u => u.Sender)
                             .Include(u => u.Recipient)
                             .SingleOrDefaultAsync(x => x.Id == id);
+        }
+
+        public async Task<Group> GetMessageGroup(string groupName)
+        {
+            return await _dataContext.Groups
+                            .Include(x => x.Connections)
+                            .FirstOrDefaultAsync(x => x.Name == groupName);
         }
 
         public async Task<PagedList<MessageDTO>> GetMessagesForUser(MessageParams messageParams)
@@ -85,7 +111,7 @@ namespace DatingApp.API.Data
             {
                 foreach(var message in unreadMessages)
                 {
-                    message.DateRead = DateTime.Now;
+                    message.DateRead = DateTime.UtcNow;
                 }
             }
 
@@ -93,7 +119,12 @@ namespace DatingApp.API.Data
 
             return _mapper.Map<IEnumerable<MessageDTO>>(messages);
                                     
-        }       
+        }
+
+        public void RemoveConnection(Connection connection)
+        {
+            _dataContext.Connections.Remove(connection);
+        }
 
         public async Task<bool> SaveAllAsync()
         {
