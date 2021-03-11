@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
-import { RolesModelComponent } from 'src/app/models/roles-model/roles-model.component';
+import { RolesModelComponent } from 'src/app/modals/roles-model/roles-model.component';
 import { User } from 'src/app/_models/user';
 import { AdminService } from 'src/app/_services/admin.service';
 
@@ -41,7 +41,7 @@ export class UserManagementComponent implements OnInit {
         roles: [...values.filter(el => el.checked === true).map(el => el.name)]
       };     
       if(rulesToUpdate){        
-        this.adminService.updateUserRoles(user.username, rulesToUpdate.roles).subscribe(() => {
+        this.adminService.updateUserRoles(user.userName, rulesToUpdate.roles).subscribe(() => {
           user.roles = [...rulesToUpdate.roles]
         })
       }

@@ -67,8 +67,8 @@ export class MembersService {
                     .reduce((arr, elem) => arr.concat(elem.result),[])
                     .find((member:Member) => member.username === username);  
                     
-    if(member)
-      return of(member);
+   // if(member)
+     // return of(member);
 
     return this.http.get<Member>(this.baseUrl + "users/" + username);
   }
